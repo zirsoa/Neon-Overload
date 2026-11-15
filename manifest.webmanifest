@@ -1,0 +1,11 @@
+{
+  "name": "NEON OVERLOAD Clicker",
+  "short_name": "NEON OVERLOAD",
+  "description": "A neon energy clicker game with upgrades, achievements and rebirths.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#090f22",
+  "theme_color": "#101b3d",
+  "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

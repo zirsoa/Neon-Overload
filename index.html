@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101b3d">
+<title>NEON OVERLOAD</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+:root{color-scheme:dark;--bg:#090f22;--panel:#111d3b;--line:#29416e;--muted:#a8b8d7;--cyan:#65e9ff;--purple:#a879ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#1d3970,#090f22 65%);color:#f4f7ff;font:16px system-ui,Segoe UI,sans-serif;min-height:100vh}
+main{max-width:850px;margin:auto;padding:18px;display:grid;gap:14px}.panel{background:linear-gradient(145deg,#142448ee,#101a35ee);border:1px solid var(--line);border-radius:17px;padding:16px;box-shadow:0 8px 30px #0003}
+header{text-align:center;padding:12px}.brand{letter-spacing:.22em;color:var(--cyan);font-weight:900;font-size:13px}.balance{font-size:clamp(36px,8vw,58px);font-weight:900;line-height:1.2;margin:8px 0}.muted{color:var(--muted)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.stat{background:#ffffff0b;border-radius:12px;padding:10px;font-size:12px;color:var(--muted)}.stat b{display:block;color:white;font-size:19px;margin-top:3px}
+.core-wrap{display:grid;place-items:center;padding:16px}.core{width:165px;height:165px;border:4px solid #9af5ff;border-radius:50%;font-size:68px;cursor:pointer;background:radial-gradient(circle at 35% 30%,#e4ffff,#36c6eb 28%,#1766bd 65%,#101b4b);box-shadow:0 0 24px #35d9ff,0 0 70px #2367d8,inset 0 0 25px white;transition:transform .08s;user-select:none}.core:active{transform:scale(.91)}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tabs button,.action{border:1px solid var(--line);background:#17284c;color:white;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}.tabs button.active{background:#236cba;border-color:#5bbdff}.shop{display:grid;gap:9px}.upgrade{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;background:#142448;border:1px solid var(--line);border-radius:12px;color:white;padding:13px;cursor:pointer}.upgrade:disabled{opacity:.4;cursor:not-allowed}.upgrade small{display:block;color:var(--muted);font-weight:400;margin-top:4px}.price{white-space:nowrap;font-weight:800;color:#a9edff}.progress{height:9px;border-radius:10px;background:#080f22;overflow:hidden;margin-top:9px}.progress span{display:block;height:100%;background:linear-gradient(90deg,#24caff,#a879ff);width:0}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.achievement{padding:12px;border-radius:12px;border:1px solid var(--line);background:#142448;font-size:13px}.achievement small{display:block;color:var(--muted);margin-top:4px}.toast{color:#bdf5ff;min-height:20px;text-align:center;font-size:13px}.footer{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.hidden{display:none!important}.float{position:fixed;pointer-events:none;color:#b9f6ff;font-weight:900;text-shadow:0 0 10px #00cfff;animation:float .8s forwards;z-index:9}@keyframes float{to{transform:translateY(-65px);opacity:0}}@media(max-width:520px){main{padding:10px}.panel{padding:13px}.core{width:145px;height:145px}.stats{gap:5px}.stat{padding:8px 4px}.stat b{font-size:16px}}
+</style>
+</head>
+<body>
+<main>
+<header class="panel">
+ <div class="brand">⚡ NEON OVERLOAD ⚡</div>
+ <div class="balance" id="money">0</div><div class="muted">ENERGY CREDITS</div>
+ <div class="stats"><div class="stat">PER CLICK<b id="power">1</b></div><div class="stat">PER SECOND<b id="pps">0</b></div><div class="stat">MULTIPLIER<b id="multi">x1</b></div></div>
+</header>
+<section class="panel" style="text-align:center">
+ <div class="muted" style="font-size:12px;letter-spacing:.15em">TAP THE ENERGY CORE</div>
+ <div class="core-wrap"><button class="core" id="clicker" aria-label="Click energy core">⚡</button></div>
+ <div class="muted" id="crit">Critical chance: 5% · Critical damage: x3</div>
+</section>
+<section class="grid">
+ <div class="panel"><div class="muted">TOTAL CLICKS</div><b id="clicks" style="font-size:23px">0</b></div>
+ <div class="panel"><div class="muted">LIFETIME EARNINGS</div><b id="earned" style="font-size:23px">0</b></div>
+</section>
+<section class="panel">
+ <div style="display:flex;justify-content:space-between"><b>⚙️ Core level</b><b id="level">Level 1</b></div>
+ <div class="progress"><span id="xpbar"></span></div><div class="muted" id="xptext" style="font-size:12px;margin-top:5px">0 / 100 XP</div>
+</section>
+<nav class="tabs">
+ <button class="active" data-tab="upgrades">🛒 Upgrades</button><button data-tab="special">✨ Special</button><button data-tab="achievements">🏆 Achievements</button>
+</nav>
+<section class="panel" id="upgrades"><h3>Upgrade shop</h3><div class="shop" id="upgrade-list"></div></section>
+<section class="panel hidden" id="special"><h3>✨ Special upgrades</h3><div class="shop" id="special-list"></div>
+ <hr style="border-color:var(--line);margin:18px 0"><h3>♻️ Rebirth</h3><p class="muted">Reset your run to earn permanent Overload tokens. Each token gives +25% to all earnings.</p>
+ <p>Tokens: <b id="tokens">0</b> · Permanent bonus: <b id="rebirth-bonus">x1</b></p><p class="muted" id="rebirth-info">Requires 100,000 lifetime credits.</p><button class="action" id="rebirth">♻️ REBIRTH</button>
+</section>
+<section class="panel hidden" id="achievements"><h3>🏆 Achievements</h3><div class="grid" id="achievement-list"></div></section>
+<div class="toast" id="toast" aria-live="polite">Progress saves automatically on this device.</div>
+<section class="panel footer"><div><b>Game settings</b><div class="muted" style="font-size:12px">Autosaves every few seconds and when you leave.</div></div><div style="display:flex;gap:8px"><button class="action" id="export">Export save</button><button class="action" id="reset">Reset</button></div></section>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),KEY='neonOverloadSave_v1';
+const defaults=()=>({money:0,earned:0,clicks:0,up:[0,0,0,0,0],sp:[0,0,0],tokens:0,level:1,xp:0});
+let s=defaults(),toastTimer;
+const upgrades=[
+ {name:'Stronger Core',icon:'💥',desc:'+2 base click power',base:15,scale:1.55},
+ {name:'Energy Amplifier',icon:'🔋',desc:'+25% all earnings',base:100,scale:1.85},
+ {name:'Auto Drone',icon:'🤖',desc:'+1 energy per second',base:50,scale:1.65},
+ {name:'Quantum Core',icon:'🌀',desc:'+2 base click power',base:500,scale:2.1},
+ {name:'Supercomputer',icon:'🖥️',desc:'+10 energy per second',base:2500,scale:2}
+];
+const specials=[
+ {name:'Lucky Reactor',icon:'🍀',desc:'+5% critical chance',base:1500,scale:2.2},
+ {name:'Critical Overdrive',icon:'🌠',desc:'+2x critical damage',base:5000,scale:2.5},
+ {name:'Permanent Boost',icon:'💎',desc:'+50% total earnings',base:15000,scale:3}
+];
+const achievements=[
+ ['First Spark','Make your first click',()=>s.clicks>=1],
+ ['Getting Started','Earn 1,000 credits',()=>s.earned>=1000],
+ ['Click Machine','Click 100 times',()=>s.clicks>=100],
+ ['Big Money','Earn 100,000 credits',()=>s.earned>=100000],
+ ['Drone Army','Own 10 drones',()=>drone()>=10],
+ ['Critical Master','Reach 25% critical chance',()=>crit()>=25],
+ ['Overlord','Perform a rebirth',()=>s.tokens>=1],
+ ['Millionaire','Earn 1 million credits',()=>s.earned>=1e6],
+ ['Cosmic Wealth','Earn 1 billion credits',()=>s.earned>=1e9],
+ ['Ultimate Core','Reach core level 50',()=>s.level>=50]
+];
+function fmt(n){if(n<1000)return Math.floor(n).toLocaleString();const u=['K','M','B','T','Qa','Qi'];let i=-1;while(n>=1000&&i<u.length-1){n/=1000;i++}return n.toFixed(2)+u[i]}
+function toast(t){$('toast').textContent=t;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').textContent='Progress saves automatically on this device.',2500)}
+function load(){try{let raw=localStorage.getItem(KEY);if(raw){let v=JSON.parse(raw);if(v&&Array.isArray(v.up)&&Array.isArray(v.sp)){s={...defaults(),...v,up:v.up.slice(0,5),sp:v.sp.slice(0,3)};while(s.up.length<5)s.up.push(0);while(s.sp.length<3)s.sp.push(0)}}}catch(e){toast('Could not read previous save. Starting a new game.')} }
+function save(){try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){toast('Save failed: browser storage may be full.')} }
+function crit(){return Math.min(75,5+s.sp[0]*5)}
+function drone(){return s.up[2]+s.up[4]*10}
+function mult(){return Math.pow(1.25,s.up[1])*(1+s.tokens*.25)*(1+s.sp[2]*.5)}
+function clickPower(){return (1+s.up[0]*2+s.up[3]*2)*mult()}
+function pps(){return drone()*mult()}
+function cost(u,i,sp=false){return Math.floor(u.base*Math.pow(u.scale,(sp?s.sp:s.up)[i]))}
+function earn(n){if(!Number.isFinite(n)||n<=0)return;s.money+=n;s.earned+=n;s.xp+=n;while(s.xp>=s.level*100){s.xp-=s.level*100;s.level++;toast('🎉 Core level '+s.level+' reached!')}}
+function buy(i,sp=false){let list=sp?specials:upgrades,c=cost(list[i],i,sp);if(s.money<c)return;s.money-=c;(sp?s.sp:s.up)[i]++;toast(list[i].name+' upgraded!');render();save()}
+function render(){
+ $('money').textContent=fmt(s.money);$('power').textContent=fmt(clickPower());$('pps').textContent=fmt(pps());$('multi').textContent='x'+mult().toFixed(2);$('clicks').textContent=fmt(s.clicks);$('earned').textContent=fmt(s.earned);$('crit').textContent='Critical chance: '+crit()+'% · Critical damage: x'+(3+s.sp[1]*2);$('level').textContent='Level '+s.level;$('xpbar').style.width=Math.min(100,s.xp/(s.level*100)*100)+'%';$('xptext').textContent=fmt(s.xp)+' / '+fmt(s.level*100)+' XP';
+ $('upgrade-list').innerHTML=upgrades.map((u,i)=>{let c=cost(u,i);return `<button class="upgrade" data-buy="${i}" ${s.money<c?'disabled':''}><span><b>${u.icon} ${u.name}</b><small>${u.desc} · Owned: ${s.up[i]}</small></span><span class="price">${fmt(c)} ⚡</span></button>`}).join('');
+ $('special-list').innerHTML=specials.map((u,i)=>{let c=cost(u,i,true);return `<button class="upgrade" data-sp="${i}" ${s.money<c?'disabled':''}><span><b>${u.icon} ${u.name}</b><small>${u.desc} · Level ${s.sp[i]}</small></span><span class="price">${fmt(c)} ⚡</span></button>`}).join('');
+ $('achievement-list').innerHTML=achievements.map(([n,d,f])=>`<div class="achievement"><b>${f()?'🏆':'🔒'} ${n}</b><small>${d}</small></div>`).join('');
+ $('tokens').textContent=s.tokens;$('rebirth-bonus').textContent='x'+(1+s.tokens*.25).toFixed(2);$('rebirth-info').textContent=s.earned>=100000?'Ready! Your next rebirth grants '+Math.max(1,Math.floor(Math.sqrt(s.earned/100000)))+' token(s).':'Requires 100,000 lifetime credits · '+fmt(100000-s.earned)+' more';$('rebirth').disabled=s.earned<100000;
+ document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>buy(+b.dataset.buy));document.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>buy(+b.dataset.sp,true));
+}
+$('clicker').onclick=e=>{s.clicks++;let isCrit=Math.random()*100<crit(),n=clickPower()*(isCrit?3+s.sp[1]*2:1);earn(n);let f=document.createElement('span');f.className='float';f.textContent='+'+fmt(n)+(isCrit?' CRIT!':'');f.style.left=e.clientX+'px';f.style.top=e.clientY+'px';document.body.append(f);setTimeout(()=>f.remove(),850);render();save()};
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));['upgrades','special','achievements'].forEach(id=>$(id).classList.toggle('hidden',id!==b.dataset.tab))});
+$('rebirth').onclick=()=>{if(s.earned<100000)return;let gained=Math.max(1,Math.floor(Math.sqrt(s.earned/100000)));if(!confirm('Rebirth for '+gained+' permanent token(s)? Your current run and upgrades will reset.'))return;s={...defaults(),tokens:s.tokens+gained};render();save();toast('Rebirth complete! Permanent bonus unlocked.')};
+$('reset').onclick=()=>{if(confirm('Permanently reset all progress and rebirth tokens?')){s=defaults();render();save();toast('New game started.')}};
+$('export').onclick=()=>{save();let blob=new Blob([JSON.stringify(s)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='neon-overload-save.json';a.click();URL.revokeObjectURL(a.href);toast('Save file exported! Keep it somewhere safe.')};
+load();render();setInterval(()=>{if(pps()>0){earn(pps()/5);render()}},200);setInterval(save,3000);window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+if('serviceWorker'in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+})();
+</script>
+</body></html>
